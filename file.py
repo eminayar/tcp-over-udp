@@ -7,8 +7,8 @@ import os
 import time
 
 os.system('clear')
-host_name = socket.gethostname() 
-host_ip = "192.168.1.38"
+host_name = socket.gethostname()
+# host_ip = "192.168.1.38"
 
 PORT = 12345
 
@@ -19,16 +19,19 @@ class TCP:
         pass
 
     def sender(self, ip, data):
-        #data = 1500 bytes(max)#
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(data, (ip, PORT))
 
     def receiver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind(('', PORT))
+        sock.setblocking(False)
         while True:
-            data, addr = sock.recvfrom(self.PACKET_SIZE)
-            print ("received message:", data, "from: ", addr)
+            # data, addr = sock.recvfrom(self.PACKET_SIZE)
+            # print ("received message:", data, "from: ", addr)
+            result = select.select([sock],[],[])
+            msg = result[0][0].recv(self.PACKET_SIZE).decode('ascii')
+            print(msg)
 
 tcp_over_udp = TCP()
 
