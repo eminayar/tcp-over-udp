@@ -26,10 +26,9 @@ class TCP:
     def receiver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind(('', PORT))
-        sock.setblocking(False)
         while True:
-            result = select.select([sock],[],[])
-            msg = result[0][0].recv(self.PACKET_SIZE).decode('ascii')
+            data, addr = sock.recvfrom(self.PACKET_SIZE)
+            print ("received message:", data, "from: ", addr)
 
 tcp_over_udp = TCP()
 
