@@ -36,5 +36,9 @@ class TCP:
 tcp_over_udp = TCP()
 
 target_ip = "192.168.1.37"
-message = input("message: ")
-tcp_over_udp.sender(target_ip, message.encode() )
+while True:
+    abc = input("EXIT or message:")
+    if abc == "exit":
+        exit(0)
+    else:
+        tcp_over_udp.sender(target_ip, abc.encode() )
