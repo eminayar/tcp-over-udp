@@ -13,8 +13,8 @@ host_ip = "192.168.1.38"
 PORT = 12345
 
 class TCP:
-    PACKET_SIZE = 1500
     def __init__(self):
+        self.PACKET_SIZE = 1500
         _thread.start_new_thread(self.receiver, () )
         pass
 
@@ -28,7 +28,7 @@ class TCP:
         sock.bind(('', PORT))
         sock.setblocking(False)
         result = select.select([sock],[],[])
-        msg = result[0][0].recv(PACKET_SIZE).decode('ascii')
+        msg = result[0][0].recv(self.PACKET_SIZE).decode('ascii')
         print(msg)
 
 tcp_over_udp = TCP()
