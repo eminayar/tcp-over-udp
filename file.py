@@ -18,11 +18,11 @@ class TCP:
         _thread.start_new_thread(self.receiver, () )
     
     def send_file(self, ip, path):
-        headers = "[" + host_ip + "," + path.split("/")[-1] + ","
+        headers = "[" + host_ip + ",file_transfer," + path.split("/")[-1] + ","
         with open( path, "rb" ) as f:
             packet_index = -1 
             while True:
-                header_with_index = headers+str(packet_index) + ","
+                header_with_index = headers+str(packet_index+1) + ","
                 chunk_size = self.PACKET_SIZE-len(str.encode(header_with_index+"]"))
                 chunk = f.read(chunk_size)
                 if not chunk:
@@ -42,13 +42,16 @@ class TCP:
             result = select.select([sock],[],[])
             msg = result[0][0].recv(self.PACKET_SIZE).decode('ascii')
             msgdata = msg.split(",")
-            filename = msgdata[1]
-            index = msgdata[2]
-            data = str.encode("".join(msgdata[3:])[:-1])
-            print("index ", index, "arrived")
-            with open( filename, "wb+" ) as destination:
-                destination.write( data )
-
+            if len(msgdata) > 4 and  msgdata[1] == "file_transfer":
+                filename = msgdata[2]
+                index = msgdata[3]
+                self.sender(msgdata[0],str.encode("received"+ str(index)))
+                data = str.encode("".join(msgdata[4:])[:-1])
+                print("index ", index, "arrived")
+                with open( filename, "wb+" ) as destination:
+                    destination.write( data )
+            else:
+                print(msg)
 
 
 tcp_over_udp = TCP()
@@ -61,4 +64,4 @@ while True:
     else:
         tcp_over_udp.send_file(target_ip, path)
 
-## [my_ip,filename,packet_index,packet]
+## [my_ip,file_transfer,filename,packet_index,packet]
