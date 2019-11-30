@@ -20,14 +20,14 @@ class TCP:
     def send_file(self, ip, path):
         headers = "[" + host_ip + "," + path.split("/")[-1] + ","
         with open( path, "rb" ) as f:
-            packet_index = 0 
+            packet_index = -1 
             while True:
-                packet_index += 1
                 header_with_index = headers+str(packet_index) + ","
                 chunk_size = self.PACKET_SIZE-len(str.encode(header_with_index+"]"))
                 chunk = f.read(chunk_size)
                 if not chunk:
                     break
+                packet_index += 1
                 self.sender(ip, str.encode(header_with_index)+chunk+str.encode("]"))
 
     def sender(self, ip, data):
@@ -41,7 +41,15 @@ class TCP:
         while True:
             result = select.select([sock],[],[])
             msg = result[0][0].recv(self.PACKET_SIZE).decode('ascii')
-            print(msg)
+            msgdata = msg.split(",")
+            filename = msgdata[1]
+            index = msgdata[2]
+            data = str.encode("".join(msgdata[3:])[:-1])
+            print("index ", index, "arrived")
+            with open( filename, "wb+" ) as destination:
+                destination.write( data )
+
+
 
 tcp_over_udp = TCP()
 
