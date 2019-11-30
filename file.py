@@ -2,7 +2,7 @@ users = {}
 
 import _thread
 import sys
-import socket
+import socket, select
 import os
 import time
 
@@ -17,20 +17,18 @@ class TCP:
         _thread.start_new_thread(self.receiver, () )
         pass
 
-    def sender(ip, data):
+    def sender(self, ip, data):
         #data = 1500 bytes(max)#
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(data, (ip, PORT))
-        pass
 
-    def receiver():
+    def receiver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind(('', PORT))
-        s.setblocking(False)
-        result = select.select([s],[],[])
+        sock.setblocking(False)
+        result = select.select([sock],[],[])
         msg = result[0][0].recv(bufferSize).decode('ascii')
         print(msg)
-        pass
 
 tcp_over_udp = TCP()
 
