@@ -27,9 +27,9 @@ class TCP:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind(('', PORT))
         sock.setblocking(False)
-        result = select.select([sock],[],[])
-        msg = result[0][0].recv(self.PACKET_SIZE).decode('ascii')
-        print(msg)
+        while True:
+            result = select.select([sock],[],[])
+            msg = result[0][0].recv(self.PACKET_SIZE).decode('ascii')
 
 tcp_over_udp = TCP()
 
