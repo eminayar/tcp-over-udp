@@ -45,7 +45,7 @@ class TCP:
             if len(msgdata) > 4 and  msgdata[1] == "file_transfer":
                 filename = msgdata[2]
                 index = msgdata[3]
-                self.sender(msgdata[0],str.encode("received"+ str(index)))
+                self.sender(msgdata[0][1:],str.encode("received"+ str(index)))
                 data = str.encode("".join(msgdata[4:])[:-1])
                 print("index ", index, "arrived")
                 with open( filename, "wb+" ) as destination:
