@@ -8,13 +8,12 @@ import time
 
 os.system('clear')
 host_name = socket.gethostname() 
-host_ip = 
+host_ip = "192.168.1.38"
 
 PORT = 12345
 
 class TCP:
     def __init__(self):
-        _thread.start_new_thread(self.sender, (ip, data) )
         _thread.start_new_thread(self.receiver, () )
         pass
 
@@ -35,5 +34,6 @@ class TCP:
 
 tcp_over_udp = TCP()
 
-target_ip = "85.105.76.101"
+target_ip = "192.168.1.37"
 message = input("message: ")
+tcp_over_udp.sender(target_ip, message.encode() )
