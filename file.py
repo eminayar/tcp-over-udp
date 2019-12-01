@@ -2,28 +2,33 @@ users = {}
 
 import _thread
 import sys
+import queue
 import socket, select
 import os
 import time
+from config import *
 
 os.system('clear')
 host_name = socket.gethostname()
 host_ip = "192.168.1.104"
 
-PORT = 12345
-
 ## [<PacketId>,<data>]
 class TCP:
     def __init__(self):
-        self.PACKET_SIZE = 5
-        self.MAXID = 10000
-        self.packetCounter = 0
+        self.queue = queue.Queue(maxsize = WINDOW_SIZE)
         _thread.start_new_thread(self.receiver, () )
+        _thread.start_new_thread(self.queue_handler, () )
 
     def sender(self, ip, data):
-
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(data, (ip, PORT))
+
+    def queue_handler(self):
+        time.sleep(10)
+        while True:
+            data = q.get(block=True)
+            print( data.decode('ascii') )
+
 
     def receiver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -31,10 +36,11 @@ class TCP:
         sock.setblocking(False)
         while True:
             result = select.select([sock],[],[])
-            msg = result[0][0].recv(self.PACKET_SIZE).decode('ascii')
-            print(sock.getsockopt(socket.SOL_SOCKET,socket.SO_RCVBUF))
-            time.sleep( 4 )
-            pass
+            packet = result[0][0].recv(PACKET_SIZE)
+            if q.full():
+                continue
+            q.put(packet)
+            
             
 
 
@@ -47,4 +53,4 @@ while True:
     if path == "exit":
         exit(0)
     else:
-        tcp_over_udp.sender(target_ip, b'10101' )
+        tcp_over_udp.sender(target_ip, b'Hello World!' )
