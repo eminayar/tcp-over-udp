@@ -12,7 +12,8 @@ from config import *
 os.system('clear')
 host_name = socket.gethostname()
 
-## <PacketId>,<data>
+## TCP => <PacketId>,<data>
+## data => [<ip>,messageType,....]
 class TCP:
     def __init__(self):
         self.buffer = queue.Queue(maxsize = WINDOW_SIZE)
@@ -44,9 +45,12 @@ class TCP:
             data = self.buffer.get(block=True)
             print( data.decode('ascii') )
             data = data.decode('ascii').split(",")
-            pck_id = data[0]
+            pck_id = int(data[0])
             if data[1] == "ACK":
                 self.ack[pck_id] = True
+                continue
+            self.sendQueue.put((data[1][1:], pck_id, str.encode(str(pck_id)+",ACK"), True))
+
 
     def receiver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -73,7 +77,7 @@ while True:
         tcp_over_udp.sendQueue.put((host_ip, 1, b'1,ACK', True) )
     elif path == "a":
         tcp_over_udp.ack[0] = False
-        tcp_over_udp.sendQueue.put((target_ip, 0, b'0,Hello World!', False) )
+        tcp_over_udp.sendQueue.put((target_ip, 0, b'0,[192.168.1.104,Hello World!]', False) )
     else:
         tcp_over_udp.ack[1] = False
-        tcp_over_udp.sendQueue.put((target_ip, 1, b'1,test', False) )
+        tcp_over_udp.sendQueue.put((target_ip, 1, b'1,[192.168.1.104,test]', False) )
