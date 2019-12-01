@@ -61,7 +61,7 @@ class TCP:
 tcp_over_udp = TCP()
 
 target_ip = "192.168.1.105"
-while True:
+while True:å
     path = input("EXIT or message:")
     if path == "exit":
         exit(0)
@@ -69,4 +69,4 @@ while True:
         tcp_over_udp.sendQueue.put((host_ip, 0, b'ACK') )
     else:
         tcp_over_udp.ack[0] = False
-        tcp_over_udp.sendQueue.put((target_ip, 0, b'Hello World!') )
+        tcp_over_udp.sendQueue.put((target_ip, 0, b'0,Hello World!') )
