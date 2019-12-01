@@ -15,7 +15,7 @@ host_ip = "192.168.1.104"
 ## [<PacketId>,<data>]
 class TCP:
     def __init__(self):
-        self.queue = queue.Queue(maxsize = WINDOW_SIZE)
+        self.buffer = queue.Queue(maxsize = WINDOW_SIZE)
         _thread.start_new_thread(self.receiver, () )
         _thread.start_new_thread(self.queue_handler, () )
 
@@ -26,7 +26,7 @@ class TCP:
     def queue_handler(self):
         time.sleep(10)
         while True:
-            data = q.get(block=True)
+            data = buffer.get(block=True)
             print( data.decode('ascii') )
 
 
@@ -37,9 +37,9 @@ class TCP:
         while True:
             result = select.select([sock],[],[])
             packet = result[0][0].recv(PACKET_SIZE)
-            if q.full():
+            if buffer.full():
                 continue
-            q.put(packet)
+            buffer.put(packet)
             
             
 
