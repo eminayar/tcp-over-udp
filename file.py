@@ -27,7 +27,7 @@ class TCP:
         time.sleep(10)
         print("queue handler started")
         while True:
-            data = buffer.get(block=True)
+            data = self.buffer.get(block=True)
             print( data.decode('ascii') )
 
 
