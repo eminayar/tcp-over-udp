@@ -11,7 +11,6 @@ from config import *
 
 os.system('clear')
 host_name = socket.gethostname()
-host_ip = "192.168.1.104"
 
 ## <PacketId>,<data>
 class TCP:
@@ -32,11 +31,13 @@ class TCP:
     def sender(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         while True:
-            ip, pck_id , data = self.sendQueue.get(block=True)
-            if not self.ack[pck_id]:
+            ip, pck_id, data, is_ack = self.sendQueue.get(block=True)
+            if is_ack:
+                sock.sendto(data, (ip, PORT))
+            elif not self.ack[pck_id]:
                 print("sending data to", ip)
                 sock.sendto(data, (ip, PORT))
-                _thread.start_new_thread(self.persist, ((ip, pck_id, data), ) )
+                _thread.start_new_thread(self.persist, ((ip, pck_id, data, is_ack), ) )
             
     def buffer_handler(self):
         while True:
@@ -60,18 +61,19 @@ class TCP:
 
 tcp_over_udp = TCP()
 
+host_ip = "192.168.1.104"
 target_ip = "192.168.1.105"
 while True:
     path = input("EXIT or message:")
     if path == "exit":
         exit(0)
     elif path == "ack0":
-        tcp_over_udp.sendQueue.put((host_ip, 0, b'0,ACK') )
+        tcp_over_udp.sendQueue.put((host_ip, 0, b'0,ACK', True) )
     elif path == "ack1":
-        tcp_over_udp.sendQueue.put((host_ip, 1, b'1,ACK') )
+        tcp_over_udp.sendQueue.put((host_ip, 1, b'1,ACK', True) )
     elif path == "a":
         tcp_over_udp.ack[0] = False
-        tcp_over_udp.sendQueue.put((target_ip, 0, b'0,Hello World!') )
+        tcp_over_udp.sendQueue.put((target_ip, 0, b'0,Hello World!', False) )
     else:
         tcp_over_udp.ack[1] = False
-        tcp_over_udp.sendQueue.put((target_ip, 1, b'1,test') )
+        tcp_over_udp.sendQueue.put((target_ip, 1, b'1,test', False) )
