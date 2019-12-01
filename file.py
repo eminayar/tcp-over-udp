@@ -61,12 +61,17 @@ class TCP:
 tcp_over_udp = TCP()
 
 target_ip = "192.168.1.105"
-while True:å
+while True:
     path = input("EXIT or message:")
     if path == "exit":
         exit(0)
-    elif path == "ack":
-        tcp_over_udp.sendQueue.put((host_ip, 0, b'ACK') )
-    else:
+    elif path == "ack0":
+        tcp_over_udp.sendQueue.put((host_ip, 0, b'0,ACK') )
+    elif path == "ack1":
+        tcp_over_udp.sendQueue.put((host_ip, 1, b'1,ACK') )
+    elif path == "a":
         tcp_over_udp.ack[0] = False
         tcp_over_udp.sendQueue.put((target_ip, 0, b'0,Hello World!') )
+    else:
+        tcp_over_udp.ack[1] = False
+        tcp_over_udp.sendQueue.put((target_ip, 1, b'1,test') )
