@@ -39,13 +39,18 @@ def tcp_listener(host_ip, dataStream):
 
     while True:
         data = dataStream.get(block=True)
-        if len(data) < 3:
-            print("unsupported message type")
-        elif data[2].split("]")[0].strip() == 'response':
-            if (data[0].strip() not in users) or (data[0].strip() in users and time.time()-users[data[0].strip()][1] > 5):
-                users[data[0].strip()] = (data[1].strip(),time.time())
-        elif data[2].split("]")[0].strip() == 'message':
-            print(data[0].strip() + ": " + data[3].strip())
+        data = data.split(',')
+        if( len(data) < 3 ):
+            print("Unsupported message type")
+            continue
+        usr = data[0].strip()[1:]
+        tp = data[2].strip().split("]").strip()
+        ip = data[1].strip()
+        if tp == 'response':
+            if (usr not in users) or (usr in users and time.time()-users[usr][1] > 5):
+                users[usr] = (ip,time.time())
+        elif tp == 'message':
+            print(usr + ": " + data[3].strip())
         print(data)    
 
 
