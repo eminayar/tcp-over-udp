@@ -50,7 +50,7 @@ class TCP:
             pck_id = int(dataHeader[0])
             if dataHeader[1] == "ACK":
                 self.ack[pck_id] = True
-                ackQueue.put((pck_id, int(dataHeader[2])))
+                self.ackQueue.put((pck_id, int(dataHeader[2])))
                 continue
             if dataHeader[1] != "WindowProbe":
                 self.outerQueue.put( data[4:] )
