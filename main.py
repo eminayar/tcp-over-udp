@@ -82,7 +82,7 @@ while True:
         print( list(users.keys()) )
     elif 'message' in command:
         cmd = command.split(" ")
-        response_message = '[' + host_name + ',' + host_ip + ',message,' + cmd[2].strip() + ']'
+        response_message = '[' + username + ',' + host_ip + ',message,' + cmd[2].strip() + ']'
         tsocket.send( users[cmd[1].strip()][0] , str.encode(response_message) )
         # _thread.start_new_thread( send_message , ( username, users[cmd[1].strip()][0] , cmd[2].strip() , ) )
 
