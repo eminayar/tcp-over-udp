@@ -31,6 +31,9 @@ def tcp_listener(host_ip, dataStream):
     import time
     global users
 
+    chunklist = []
+    numArrived = 0
+
     while True:
         binary = dataStream.get(block=True)
         data = binary[:96].decode("ascii").split(',')
@@ -46,13 +49,28 @@ def tcp_listener(host_ip, dataStream):
         elif tp == 'message':
             print(usr + ": " + data[3].strip().split("]")[0].strip())
         elif tp == 'file':
-            print(data)    
+            filename = data[3]
+            outOf = int(data[4])
+            pck_index = int(data[5])
+            pck_length = int(data[6].split("]")[0])
+            chunk = binary[96:96+pck_length]
+            if numArrived == 0:
+                chunklist = [b'0' for i in range(outOf)]
+            if chunklist[pck_index] != chunk:
+                numArrived +=1
+                chunklist[pck_index] = chunk:
+            if numArrived == outOf:
+                numArrived = 0
+                with open(filename, "wb+") as destination:
+                    for chunk in chunklist:
+                        destination.write( chunk )
 
 
 import _thread
 import sys
 import socket
 import os
+import math
 import queue
 import time
 
@@ -91,19 +109,19 @@ while True:
         to = command.split(" ")[1].strip()
         filepath = command.split(" ")[2].strip()
         filename = filepath.split("/")[-1]
-        outOf = os.path.getsize(filepath)/1400
+        outOf = math.floor(os.path.getsize(filepath)/1400)
         if outOf*1400 != os.path.getsize(filepath):
             outOf += 1
         header = "["+username+","+HOST_IP+",file,"+filename+","+str(outOf)+","
         with open(filepath, "rb") as f:
             chunkCounter = 0
             while True:
-                chunk = f.read( chunksize )
+                chunk = f.read( 1400 )
                 if not chunk:
                     break
-                chunkCounter += 1
-                data_header = str.encode(header+str(chunkCounter)+","+len(chunk))
+                data_header = str.encode(header+str(chunkCounter)+","+str(len(chunk))+"]" )
                 data_header += b'0' * (96-len(data_header))
                 tsocket.send( users[to][0], data_header+chunk )
+                chunkCounter += 1
                 
 # 125,[<username>,<ip>,"file","filename",99999,23512,1400]
