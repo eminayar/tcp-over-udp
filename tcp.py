@@ -87,7 +87,7 @@ class FlowControl:
         while True:
             if self.onAir != 0 and self.onAir < self.rwnd:
                 self.tcp.send( self.target_ip, probe_message )
-            time.sleep(1)
+            time.sleep(0.1)
 
     def rwnd_reader(self):
         while True:
