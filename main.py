@@ -2,13 +2,6 @@ users = {}
 from config import *
 from tcp import TCP
 
-# def send_message( host_name, target_ip, message ):
-#     import socket
-#     response_message = '[' + host_name + ',' + host_ip + ',message,' + message + ']'
-    # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    #     s.connect((target_ip,12345))
-    #     s.sendall(str.encode(response_message))
-
 def announcement_listener(host_name, host_ip, tsocket ):
     import select, socket
     import time
@@ -44,7 +37,7 @@ def tcp_listener(host_ip, dataStream):
             print("Unsupported message type")
             continue
         usr = data[0].strip()[1:]
-        tp = data[2].strip().split("]").strip()
+        tp = data[2].strip().split("]")[0].strip()
         ip = data[1].strip()
         if tp == 'response':
             if (usr not in users) or (usr in users and time.time()-users[usr][1] > 5):
@@ -89,5 +82,7 @@ while True:
         print( list(users.keys()) )
     elif 'message' in command:
         cmd = command.split(" ")
-        _thread.start_new_thread( send_message , ( username, users[cmd[1].strip()][0] , cmd[2].strip() , ) )
+        response_message = '[' + host_name + ',' + host_ip + ',message,' + cmd[2].strip() + ']'
+        tsocket.send( users[cmd[1].strip()][0] , str.encode(response_message) )
+        # _thread.start_new_thread( send_message , ( username, users[cmd[1].strip()][0] , cmd[2].strip() , ) )
 

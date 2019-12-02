@@ -42,7 +42,6 @@ class TCP:
     def buffer_handler(self):
         while True:
             data = self.buffer.get(block=True)
-            print( data.decode('ascii') )
             data = data.decode('ascii').split(",")
             pck_id = int(data[0])
             if data[1] == "ACK":
