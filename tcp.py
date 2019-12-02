@@ -106,7 +106,7 @@ class FlowControl:
         self.lock.acquire()
         pck_id = self.tcp.send(ip, data)
         self.ack[pck_id] = False
-        print("sending packet", chunk_index, "/", outOf)
+        print("sending packet", chunk_index, "/", outOf, end='\r')
         self.onAir += 1
         self.lock.release()
 
