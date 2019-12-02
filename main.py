@@ -32,8 +32,8 @@ def tcp_listener(host_ip, dataStream):
     global users
 
     while True:
-        data = dataStream.get(block=True)
-        dataHeader = data[:96].split(',')
+        binary = dataStream.get(block=True)
+        data = binary[:96].decode("ascii").split(',')
         if( len(data) < 3 ):
             print("Unsupported message type")
             continue
