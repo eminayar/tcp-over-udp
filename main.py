@@ -30,11 +30,11 @@ def announcement_listener( host_name, host_ip ):
     while True:
         result = select.select([s],[],[])
         msg = result[0][0].recv(bufferSize).decode('ascii')
-        print(msg)
         usr, ip, tp = msg.split(',')
         usr = usr.strip()[1:]
         tp = tp.strip()[:-1]
         ip = ip.strip()
+        print(usr, ip, tp)
         if tp.strip() == 'announce' and ip != host_ip:
             if (usr not in users) or (usr in users and time.time()-users[usr][1] > 5):
                 users[usr] = (ip,time.time())
