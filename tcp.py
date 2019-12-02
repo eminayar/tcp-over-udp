@@ -82,7 +82,7 @@ class FlowControl:
         _thread.start_new_thread(self.window_prober, ())
 
     def window_prober(self):
-        probe_message = "WindowProbe,"+self.host_ip
+        probe_message = str.encode("WindowProbe,"+self.host_ip)
         while True:
             if self.onAir != 0 and self.onAir < self.rwnd:
                 self.tcp.send( self.target_ip, probe_message )
