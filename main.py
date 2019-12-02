@@ -58,7 +58,7 @@ def tcp_listener(host_ip, dataStream):
                 chunklist = [b'0' for i in range(outOf)]
             if chunklist[pck_index] != chunk:
                 numArrived +=1
-                chunklist[pck_index] = chunk:
+                chunklist[pck_index] = chunk
             if numArrived == outOf:
                 numArrived = 0
                 with open(filename, "wb+") as destination:
