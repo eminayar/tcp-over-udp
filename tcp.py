@@ -41,13 +41,13 @@ class TCP:
     def buffer_handler(self):
         while True:
             data = self.buffer.get(block=True)
-            data = data.decode('ascii').split(",")
-            pck_id = int(data[0])
-            if data[1] == "ACK":
+            dataHeader = data[:min(len(data), 23)].decode('ascii').split(",")
+            pck_id = int(dataHeader[0])
+            if dataHeader[1] == "ACK":
                 self.ack[pck_id] = True
                 continue
-            self.outerQueue.put( ",".join(data[1:]))
-            self.sendQueue.put((data[2], pck_id, str.encode(str(pck_id)+",ACK"), True))
+            self.outerQueue.put( data[4:] )
+            self.sendQueue.put((dataHeader[2], pck_id, str.encode(str(pck_id)+",ACK"), True))
 
     def receiver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
