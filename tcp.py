@@ -6,10 +6,11 @@ import time
 from config import *
 
 class TCP:
-    def __init__(self):
+    def __init__(self, outerQueue):
         self.buffer = queue.Queue(maxsize = WINDOW_SIZE)
         self.sendQueue = queue.Queue(maxsize = WINDOW_SIZE)
         self.packet_id = 0
+        self.outerQueue = outerQueue
         self.ack = [True for i in range(PACKET_ID_CYCLE)]
         _thread.start_new_thread(self.receiver, () )
         _thread.start_new_thread(self.buffer_handler, () )
@@ -47,6 +48,7 @@ class TCP:
             if data[1] == "ACK":
                 self.ack[pck_id] = True
                 continue
+            self.outerQueue.put( "".join(data[1:]))
             self.sendQueue.put((data[1][1:], pck_id, str.encode(str(pck_id)+",ACK"), True))
 
     def receiver(self):

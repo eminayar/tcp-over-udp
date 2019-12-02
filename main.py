@@ -2,14 +2,6 @@ users = {}
 from config import *
 from tcp import TCP
 
-# def send_response( host_name, host_ip, target_ip ):
-#     import socket
-#     response_message = '[' + host_name + ',' + host_ip + ',response]'
-
-    # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    #     s.connect((target_ip,12345))
-    #     s.sendall(str.encode(response_message))
-
 # def send_message( host_name, target_ip, message ):
 #     import socket
 #     response_message = '[' + host_name + ',' + host_ip + ',message,' + message + ']'
@@ -17,7 +9,7 @@ from tcp import TCP
     #     s.connect((target_ip,12345))
     #     s.sendall(str.encode(response_message))
 
-def announcement_listener( host_name, host_ip ):
+def announcement_listener(host_name, host_ip, tsocket ):
     import select, socket
     import time
     import _thread
@@ -34,51 +26,45 @@ def announcement_listener( host_name, host_ip ):
         usr = usr.strip()[1:]
         tp = tp.strip()[:-1]
         ip = ip.strip()
-        print( tp.strip(), ip, host_ip)
         if tp.strip() == 'announce' and ip != host_ip:
-            # print(usr, ip, tp)
             if (usr not in users) or (usr in users and time.time()-users[usr][1] > 5):
                 users[usr] = (ip,time.time())
-                # _thread.start_new_thread( send_response, (host_name, host_ip, users[usr][0], ))
+                response_message = '[' + host_name + ',' + host_ip + ',response]'
+                tsocket.send( ip, str.encode(response_message) )
 
-# def tcp_listener( host_ip ):
-#     import socket
-#     import time
-#     global users
+def tcp_listener(host_ip, dataStream):
+    import socket
+    import time
+    global users
 
-#     while True:
-#         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-#             s.bind((host_ip,12345))
-#             s.listen(10)
-#             conn, addr = s.accept()
-#             with conn:
-#                 # print('Connected by: ', addr)
-#                 data = conn.recv(1024).decode('ascii').strip()[1:-1].split(',')
-#                 if len(data) < 3:
-#                     print("unsupported message type")
-#                 elif data[2].strip() == 'response':
-#                     if (data[0].strip() not in users) or (data[0].strip() in users and time.time()-users[data[0].strip()][1] > 5):
-#                         users[data[0].strip()] = (data[1].strip(),time.time())
-#                 elif data[2].strip() == 'message':
-#                     print(data[0].strip() + ": " + data[3].strip())
-                # print(data.decode('ascii'))    
+    while True:
+        data = dataStream.get(blocking=True)
+        if len(data) < 3:
+            print("unsupported message type")
+        elif data[2].strip() == 'response':
+            if (data[0].strip() not in users) or (data[0].strip() in users and time.time()-users[data[0].strip()][1] > 5):
+                users[data[0].strip()] = (data[1].strip(),time.time())
+        elif data[2].strip() == 'message':
+            print(data[0].strip() + ": " + data[3].strip())
+        print(data.decode('ascii'))    
 
 
 import _thread
 import sys
 import socket
 import os
+import queue
 import time
 
 os.system('clear')
 username = input("Enter your username: ")
 host_ip = HOST_IP
-print( host_ip )
+listenerQueue = queue.Queue()
+tsocket = TCP( listenerQueue )
 
 try:
-    _thread.start_new_thread( announcement_listener, ( username, host_ip, ) )
-    # _thread.start_new_thread( tcp_listener, (host_ip, ) )
+    _thread.start_new_thread( announcement_listener, ( username, host_ip, tsocket, ) )
+    _thread.start_new_thread( tcp_listener, (host_ip, listenerQueue,  ) )
 except:
     print ("Error: unable to start thread")
 
