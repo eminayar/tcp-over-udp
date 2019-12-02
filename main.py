@@ -64,6 +64,7 @@ def tcp_listener(host_ip, dataStream):
                 with open(filename, "wb+") as destination:
                     for chunk in chunklist:
                         destination.write( chunk )
+            time.sleep(1)
 
 
 import _thread
