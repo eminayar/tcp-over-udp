@@ -1,6 +1,6 @@
 users = {}
 from config import *
-from tcp import TCP
+from tcp import TCP, FlowControl
 
 def announcement_listener(host_name, host_ip, tsocket ):
     import select, socket
@@ -65,7 +65,6 @@ def tcp_listener(host_ip, dataStream):
                 with open(filename, "wb+") as destination:
                     for chunk in chunklist:
                         destination.write( chunk )
-            time.sleep(1)
 
 
 import _thread
@@ -80,7 +79,9 @@ os.system('clear')
 username = input("Enter your username: ")
 host_ip = HOST_IP
 listenerQueue = queue.Queue()
-tsocket = TCP( listenerQueue )
+streamAck = queue.Queue()
+tsocket = TCP( listenerQueue, streamAck )
+flow = FlowControl( tsocket, streamAck , host_ip)
 
 try:
     _thread.start_new_thread( announcement_listener, ( username, host_ip, tsocket, ) )
@@ -123,7 +124,7 @@ while True:
                     break
                 data_header = str.encode(header+str(chunkCounter)+","+str(len(chunk))+"]" )
                 data_header += b'0' * (96-len(data_header))
-                tsocket.send( users[to][0], data_header+chunk )
+                flow.send( users[to][0], data_header+chunk )
                 chunkCounter += 1
                 
 # 125,[<username>,<ip>,"file","filename",99999,23512,1400]
