@@ -27,7 +27,10 @@ class TCP:
         while True:
             ip, pck_id, data, is_ack = self.sendQueue.get(block=True)
             if is_ack:
-                sock.sendto(data, (ip, TCP_PORT))
+                try:
+                    sock.sendto(data, (ip, TCP_PORT))
+                except:
+                    pass
             elif not self.ack[pck_id]:
                 sock.sendto(data, (ip, TCP_PORT))
                 _thread.start_new_thread(self.persist, ((ip, pck_id, data, is_ack), ) )
