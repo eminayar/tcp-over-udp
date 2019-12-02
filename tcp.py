@@ -48,7 +48,7 @@ class TCP:
             if data[1] == "ACK":
                 self.ack[pck_id] = True
                 continue
-            self.outerQueue.put( "".join(data[1:]))
+            self.outerQueue.put( ",".join(data[1:]))
             self.sendQueue.put((data[2], pck_id, str.encode(str(pck_id)+",ACK"), True))
 
     def receiver(self):
