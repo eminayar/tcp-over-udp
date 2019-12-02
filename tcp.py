@@ -58,7 +58,8 @@ class TCP:
                 self.outerQueue.put( data[4:] )
             rwnd = WINDOW_SIZE-self.buffer.qsize()-2
             self.sendQueue.put((dataHeader[2], pck_id, str.encode(str(pck_id)+",ACK,"+str(rwnd)), True))
-            time.sleep(0.1)
+            if SIMULATE:
+                time.sleep(0.1)
 
     def receiver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
