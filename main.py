@@ -5,6 +5,7 @@ from tcp import TCP
 def send_response( host_name, host_ip, target_ip ):
     import socket
     response_message = '[' + host_name + ',' + host_ip + ',response]'
+
     # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     #     s.connect((target_ip,12345))
     #     s.sendall(str.encode(response_message))
@@ -29,7 +30,6 @@ def announcement_listener( host_name, host_ip ):
         s.setblocking(False)
         result = select.select([s],[],[])
         msg = result[0][0].recv(bufferSize).decode('ascii')
-        print(msg)
         usr, ip, tp = msg.split(',')
         usr = usr.strip()[1:]
         tp = tp.strip()[:-1]
@@ -72,7 +72,7 @@ import time
 
 os.system('clear')
 username = input("Enter your username: ")
-host_ip = "192.168.1.104"
+host_ip = HOST_IP
 
 try:
     _thread.start_new_thread( announcement_listener, ( username, host_ip, ) )
