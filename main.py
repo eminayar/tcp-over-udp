@@ -46,7 +46,7 @@ def tcp_listener(host_ip, dataStream):
                 users[data[0].strip()] = (data[1].strip(),time.time())
         elif data[2].strip() == 'message':
             print(data[0].strip() + ": " + data[3].strip())
-        print(data.decode('ascii'))    
+        print(data)    
 
 
 import _thread
