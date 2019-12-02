@@ -57,6 +57,7 @@ class TCP:
         while True:
             result = select.select([sock],[],[])
             packet = result[0][0].recv(PACKET_SIZE)
+            print("buffersize:", self.buffer.qsize())
             if self.buffer.full():
                 continue
             self.buffer.put(packet)
