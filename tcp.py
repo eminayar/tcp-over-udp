@@ -36,6 +36,7 @@ class TCP:
         self.ack[self.packet_id] = False
         data = str.encode(str(self.packet_id).zfill(3)+",")+data
         data = data+(b'0' * (PACKET_SIZE-len(data)) )
+        print("sending data to", ip)
         self.sendQueue.put((ip, self.packet_id, data, False))
             
     def buffer_handler(self):
