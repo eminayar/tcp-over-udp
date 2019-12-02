@@ -54,6 +54,7 @@ def tcp_listener(host_ip, dataStream):
             pck_index = int(data[5])
             pck_length = int(data[6].split("]")[0])
             chunk = binary[96:96+pck_length]
+            print(data)
             if numArrived == 0:
                 chunklist = [b'0' for i in range(outOf)]
             if chunklist[pck_index] != chunk:
