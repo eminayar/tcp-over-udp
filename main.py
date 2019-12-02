@@ -38,7 +38,7 @@ def tcp_listener(host_ip, dataStream):
     global users
 
     while True:
-        data = dataStream.get(blocking=True)
+        data = dataStream.get(block=True)
         if len(data) < 3:
             print("unsupported message type")
         elif data[2].strip() == 'response':
