@@ -27,7 +27,6 @@ class TCP:
             if is_ack:
                 sock.sendto(data, (ip, TCP_PORT))
             elif not self.ack[pck_id]:
-                print("sending data to", ip)
                 sock.sendto(data, (ip, TCP_PORT))
                 _thread.start_new_thread(self.persist, ((ip, pck_id, data, is_ack), ) )
 
@@ -35,13 +34,14 @@ class TCP:
         while not self.ack[self.packet_id]:
             self.packet_id = (self.packet_id+1)%PACKET_ID_CYCLE
         self.ack[self.packet_id] = False
-        data = str.encode(str(self.packet_id)+",")+data
+        data = str.encode(str(self.packet_id).zfill(3)+",")+data
         data = data+(b'0' * (PACKET_SIZE-len(data)) )
         self.sendQueue.put((ip, self.packet_id, data, False))
             
     def buffer_handler(self):
         while True:
             data = self.buffer.get(block=True)
+            print(data.decode('ascii'))
             data = data.decode('ascii').split(",")
             pck_id = int(data[0])
             if data[1] == "ACK":
