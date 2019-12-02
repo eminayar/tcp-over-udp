@@ -45,7 +45,8 @@ def tcp_listener(host_ip, dataStream):
                 users[usr] = (ip,time.time())
         elif tp == 'message':
             print(usr + ": " + data[3].strip().split("]")[0].strip())
-        print(data)    
+        elif tp == 'file':
+            print(data)    
 
 
 import _thread
@@ -90,8 +91,10 @@ while True:
         to = command.split(" ")[1].strip()
         filepath = command.split(" ")[2].strip()
         filename = filepath.split("/")[-1]
-        header = "["+username+","+HOST_IP+",file,"+filename+","
-        chunksize = PACKET_SIZE - len(str.encode("000,"+header+"000000,]"))
+        outOf = os.path.getsize(filepath)/1400
+        if outOf*1400 != os.path.getsize(filepath):
+            outOf += 1
+        header = "["+username+","+HOST_IP+",file,"+filename+","+str(outOf)+","
         with open(filepath, "rb") as f:
             chunkCounter = 0
             while True:
@@ -99,7 +102,8 @@ while True:
                 if not chunk:
                     break
                 chunkCounter += 1
-                data = str.encode(header+str(chunkCounter)+",")+chunk+str.encode("]")
-                tsocket.send( users[to][0], data )
+                data_header = str.encode(header+str(chunkCounter)+","+len(chunk))
+                data_header += b'0' * (96-len(data_header))
+                tsocket.send( users[to][0], data_header+chunk )
                 
-# 125,[<username>,<ip>,"file","filename",23512,99999,1400]
+# 125,[<username>,<ip>,"file","filename",99999,23512,1400]
