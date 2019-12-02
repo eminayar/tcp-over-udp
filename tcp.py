@@ -41,7 +41,7 @@ class TCP:
     def buffer_handler(self):
         while True:
             data = self.buffer.get(block=True)
-            dataHeader = data[:min(len(data), 23)].decode('ascii').split(",")
+            dataHeader = data[:100].decode('ascii').split(",")
             pck_id = int(dataHeader[0])
             if dataHeader[1] == "ACK":
                 self.ack[pck_id] = True

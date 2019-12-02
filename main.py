@@ -23,6 +23,7 @@ def announcement_listener(host_name, host_ip, tsocket ):
             if (usr not in users) or (usr in users and time.time()-users[usr][1] > 5):
                 users[usr] = (ip,time.time())
                 response_message = '[' + host_name + ',' + host_ip + ',response]'
+                response_message += '0' * (96-len(response_message))
                 tsocket.send( ip, str.encode(response_message) )
 
 def tcp_listener(host_ip, dataStream):
@@ -32,7 +33,7 @@ def tcp_listener(host_ip, dataStream):
 
     while True:
         data = dataStream.get(block=True)
-        data = data.split(',')
+        dataHeader = data[:96].split(',')
         if( len(data) < 3 ):
             print("Unsupported message type")
             continue
@@ -83,6 +84,7 @@ while True:
     elif 'message' in command:
         cmd = command.split(" ")
         response_message = '[' + username + ',' + host_ip + ',message,' + cmd[2].strip() + ']'
+        response_message += '0' * (96-len(response_message))
         tsocket.send( users[cmd[1].strip()][0] , str.encode(response_message) )
     elif 'file' in command:
         to = command.split(" ")[1].strip()
@@ -100,4 +102,4 @@ while True:
                 data = str.encode(header+str(chunkCounter)+",")+chunk+str.encode("]")
                 tsocket.send( users[to][0], data )
                 
-# 125,[<username>,<ip>,"file","filename",23512,<data>]
+# 125,[<username>,<ip>,"file","filename",23512,99999,1400]
