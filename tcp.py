@@ -1,19 +1,10 @@
-users = {}
-
 import _thread
-import sys
 import queue
 import socket, select
 import os
-from threading import Lock
 import time
 from config import *
 
-os.system('clear')
-host_name = socket.gethostname()
-
-## TCP => <PacketId>,<data>
-## data => [<ip>,messageType,....]
 class TCP:
     def __init__(self):
         self.buffer = queue.Queue(maxsize = WINDOW_SIZE)
@@ -24,7 +15,6 @@ class TCP:
         _thread.start_new_thread(self.buffer_handler, () )
         _thread.start_new_thread(self.sender, ())
 
-
     def persist(self, data):
         time.sleep(1)
         self.sendQueue.put(data)
@@ -34,11 +24,19 @@ class TCP:
         while True:
             ip, pck_id, data, is_ack = self.sendQueue.get(block=True)
             if is_ack:
-                sock.sendto(data, (ip, PORT))
+                sock.sendto(data, (ip, TCP_PORT))
             elif not self.ack[pck_id]:
                 print("sending data to", ip)
-                sock.sendto(data, (ip, PORT))
+                sock.sendto(data, (ip, TCP_PORT))
                 _thread.start_new_thread(self.persist, ((ip, pck_id, data, is_ack), ) )
+
+    def send(self, ip, data):
+        while not self.ack[self.packet_id]:
+            self.packet_id = (self.packet_id+1)%PACKET_ID_CYCLE
+        self.ack[self.packet_id] = False
+        data = str.encode(str(self.packet_id)+",")+data
+        data = data+(b'0' * (PACKET_SIZE-len(data)) )
+        self.sendQueue.put((ip, self.packet_id, data, False))
             
     def buffer_handler(self):
         while True:
@@ -51,10 +49,9 @@ class TCP:
                 continue
             self.sendQueue.put((data[1][1:], pck_id, str.encode(str(pck_id)+",ACK"), True))
 
-
     def receiver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.bind(('', PORT))
+        sock.bind(('', TCP_PORT))
         sock.setblocking(False)
         while True:
             result = select.select([sock],[],[])
@@ -62,22 +59,3 @@ class TCP:
             if self.buffer.full():
                 continue
             self.buffer.put(packet)
-
-tcp_over_udp = TCP()
-
-host_ip = "192.168.1.104"
-target_ip = "192.168.1.105"
-while True:
-    path = input("EXIT or message:")
-    if path == "exit":
-        exit(0)
-    elif path == "ack0":
-        tcp_over_udp.sendQueue.put((host_ip, 0, b'0,ACK', True) )
-    elif path == "ack1":
-        tcp_over_udp.sendQueue.put((host_ip, 1, b'1,ACK', True) )
-    elif path == "a":
-        tcp_over_udp.ack[0] = False
-        tcp_over_udp.sendQueue.put((target_ip, 0, b'0,[192.168.1.104,Hello World!]', False) )
-    else:
-        tcp_over_udp.ack[1] = False
-        tcp_over_udp.sendQueue.put((target_ip, 1, b'1,[192.168.1.104,test]', False) )
