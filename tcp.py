@@ -99,7 +99,7 @@ class FlowControl:
                 self.onAir -= 1
             self.lock.release()
 
-    def send(self, ip, data):
+    def send(self, ip, data, chunk_index, outOf):
         while True:
             if self.onAir < self.rwnd:
                 break
@@ -107,6 +107,7 @@ class FlowControl:
         self.lock.acquire()
         pck_id = self.tcp.send(ip, data)
         self.ack[pck_id] = False
+        print("sending packet", chunk_index, "/", outOf)
         self.onAir += 1
         self.lock.release()
 

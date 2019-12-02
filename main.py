@@ -54,7 +54,7 @@ def tcp_listener(host_ip, dataStream):
             pck_index = int(data[5])
             pck_length = int(data[6].split("]")[0])
             chunk = binary[96:96+pck_length]
-            print(data)
+            print("received chunk", pck_index, "/" , outOf )
             if numArrived == 0:
                 chunklist = [b'0' for i in range(outOf)]
             if chunklist[pck_index] != chunk:
@@ -124,7 +124,7 @@ while True:
                     break
                 data_header = str.encode(header+str(chunkCounter)+","+str(len(chunk))+"]" )
                 data_header += b'0' * (96-len(data_header))
-                flow.send( users[to][0], data_header+chunk )
+                flow.send( users[to][0], data_header+chunk , chunkCounter, outOf )
                 chunkCounter += 1
                 
 # 125,[<username>,<ip>,"file","filename",99999,23512,1400]
