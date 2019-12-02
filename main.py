@@ -43,8 +43,8 @@ def tcp_listener(host_ip, dataStream):
             if (usr not in users) or (usr in users and time.time()-users[usr][1] > 5):
                 users[usr] = (ip,time.time())
         elif tp == 'message':
-            print(usr + ": " + data[3].strip())
-        print(data)    
+            print(usr + ": " + data[3].strip().split("]")[0].strip())
+        # print(data)    
 
 
 import _thread
