@@ -34,8 +34,9 @@ def announcement_listener( host_name, host_ip ):
         usr = usr.strip()[1:]
         tp = tp.strip()[:-1]
         ip = ip.strip()
-        print(usr, ip, tp)
+        print( tp.strip(), ip, host_ip)
         if tp.strip() == 'announce' and ip != host_ip:
+            # print(usr, ip, tp)
             if (usr not in users) or (usr in users and time.time()-users[usr][1] > 5):
                 users[usr] = (ip,time.time())
                 # _thread.start_new_thread( send_response, (host_name, host_ip, users[usr][0], ))
@@ -73,6 +74,7 @@ import time
 os.system('clear')
 username = input("Enter your username: ")
 host_ip = HOST_IP
+print( host_ip )
 
 try:
     _thread.start_new_thread( announcement_listener, ( username, host_ip, ) )
