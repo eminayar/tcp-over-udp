@@ -29,7 +29,6 @@ class TCP:
             if is_ack:
                 sock.sendto(data, (ip, TCP_PORT))
             elif not self.ack[pck_id]:
-                print("sending data to", ip, pck_id)
                 sock.sendto(data, (ip, TCP_PORT))
                 _thread.start_new_thread(self.persist, ((ip, pck_id, data, is_ack), ) )
 
@@ -38,7 +37,7 @@ class TCP:
             self.packet_id = (self.packet_id+1)%PACKET_ID_CYCLE
         found = self.packet_id
         self.ack[found] = False
-        data = str.encode(str(self.packet_id).zfill(3)+",")+data
+        data = str.encode(str(found).zfill(3)+",")+data
         data = data+(b'0' * (PACKET_SIZE-len(data)) )
         self.sendQueue.put((ip, found, data, False))
         return found
