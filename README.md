@@ -1,5 +1,7 @@
 # tcp over udp
 
+Messaging and file transfer application in Local Area Network(LAN).
+
 Flow control and acknowledment implemented using UDP sockets.
 
 Python version 3.7.3
