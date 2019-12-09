@@ -117,8 +117,11 @@ while True:
         if outOf*1400 != os.path.getsize(filepath):
             outOf += 1
         header = "["+username+","+HOST_IP+",file,"+filename+","+str(outOf)+","
+        start_time = 0
+        finish_time = 0
         with open(filepath, "rb") as f:
             chunkCounter = 0
+            start_time = time.time()
             while True:
                 chunk = f.read( 1400 )
                 if not chunk:
@@ -127,5 +130,11 @@ while True:
                 data_header += b'0' * (96-len(data_header))
                 flow.send( users[to][0], data_header+chunk , chunkCounter, outOf )
                 chunkCounter += 1
+            finish_time = time.time()
+            flow.upload_complete()
+        seconds_passed = finish_time-start_time
+        size = os.path.getsize(filepath)
+        print(size, " bytes in ", seconds_passed, "seconds" )
+        print("Mbps", (size*8)/seconds_passed/1000000)
                 
 # 125,[<username>,<ip>,"file","filename",99999,23512,1400]
