@@ -75,6 +75,7 @@ class TCP:
 class FlowControl:
     def __init__(self, tcp, ackQueue, host_ip):
         self.tcp = tcp
+        self.complete = True
         self.lock = Lock()
         self.rwnd = 1
         self.host_ip = host_ip
@@ -88,7 +89,7 @@ class FlowControl:
     def window_prober(self):
         probe_message = str.encode("WindowProbe,"+self.host_ip)
         while True:
-            if self.onAir != 0 and self.onAir < self.rwnd:
+            if (not self.complete) and self.onAir < self.rwnd:
                 self.tcp.send( self.target_ip, probe_message )
             time.sleep(1)
 
@@ -103,6 +104,7 @@ class FlowControl:
             self.lock.release()
 
     def send(self, ip, data, chunk_index, outOf):
+        self.complete = False
         while True:
             if self.onAir < self.rwnd:
                 break
@@ -113,6 +115,9 @@ class FlowControl:
         print("sending packet", chunk_index, "/", outOf, end='\r')
         self.onAir += 1
         self.lock.release()
+    
+    def upload_complete():
+        self.complete = True
 
 
 
